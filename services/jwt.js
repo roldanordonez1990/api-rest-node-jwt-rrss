@@ -11,6 +11,7 @@ const generateJwt = (user) =>{
         id: user._id,
         nombre: user.nombre,
         nick: user.nick,
+        bio: user.bio,
         email: user.email,
         imagen: user.imagen,
         role: user.role,
