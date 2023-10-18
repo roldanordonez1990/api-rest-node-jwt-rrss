@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("../services/jwt");
 const pagination = require("mongoose-pagination");
 const fs = require("fs");
+const path = require("path");
 
 //PRUEBA
 const prueba1 = (req, res) => {
@@ -158,6 +159,7 @@ const listUser = async (req, res) => {
   }
 };
 
+//ACTUALIZAR USUARIO
 const updateUser = async (req, res) => {
   //Obtener los datos de identificación por token
   const user_token_identity = req.user;
@@ -204,7 +206,7 @@ const updateUser = async (req, res) => {
     }
     //Actualizamos el user
     try {
-      const user_updated = await User.findByIdAndUpdate(user_token_identity.id, user_to_update, {new: true}).select({"role" :0});
+      const user_updated = await User.findByIdAndUpdate({_id: user_token_identity.id}, user_to_update, {new: true}).select({"role" :0});
       return res.status(200).send({
         message: "update ok",
         user_token_identity: user_token_identity,
@@ -218,6 +220,7 @@ const updateUser = async (req, res) => {
     }
 };
 
+//SUBIDA DE IMAGEN AVATAR
 const uploadAvatar = async(req, res) =>{
   if(!req.file){
     return res.status(403).send({
@@ -257,6 +260,25 @@ const uploadAvatar = async(req, res) =>{
   }
 }
 
+//OBTENER LA IMAGEN O RUTA ABSOLUTA DEL AVATAR
+const getAvatar = (req, res) =>{
+  //Obtenemos el nombre del avatar por el parámetro de la ruta
+  const filename = req.params.filename;
+  //Creamos un path absoluto de la imagen
+  const ruta_fisica = "./images/avatars/"+filename;
+  //el método stat dentro de fileSystem, nos dice si existe o no esa ruta
+  fs.stat(ruta_fisica, (err, exists) => {
+    if(exists){
+      //Si existe, se envía la imagen con sendFile y la librería path
+      return res.sendFile(path.resolve(ruta_fisica));
+    }else{
+      return res.status(404).send({
+        message: "El filename no es correcto o no existe"
+      })
+    }
+  });
+}
+
 module.exports = {
   prueba1,
   addUser,
@@ -264,5 +286,6 @@ module.exports = {
   getDataUser,
   listUser,
   updateUser,
-  uploadAvatar
+  uploadAvatar,
+  getAvatar
 };
