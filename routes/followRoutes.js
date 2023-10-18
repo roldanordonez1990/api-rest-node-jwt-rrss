@@ -9,6 +9,7 @@ const auth = require("../middlewares/auth");
 //DEFINIMOS LAS RUTAS PARA USER
 router.get("/prueba3", followController.prueba3);
 router.post("/followed", auth.authorizationLogin, followController.followed);
-router.delete("/unFollowed/:id", auth.authorizationLogin, followController.unFollowed)
+router.delete("/unFollowed/:id", auth.authorizationLogin, followController.unFollowed);
+router.get("/following/:id?/:page?", auth.authorizationLogin, followController.following)
 
 module.exports = router;

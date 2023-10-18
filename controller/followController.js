@@ -2,7 +2,9 @@ const req = require("express/lib/request");
 const res = require("express/lib/response");
 const Follow = require("../model/Follow");
 const User = require("../model/User");
+const pagination = require("mongoose-pagination");
 
+//PRUEBA
 const prueba3 = (req, res) => {
     return res.status(200).json({
         mensaje: "Prueba follow funcionando"
@@ -113,8 +115,67 @@ const unFollowed = async(req, res) => {
     }
 }
 
+//LISTADO DE USUARIOS QUE SIGO
+const following = async(req, res) => {
+    //Obtener el id del usuario registrado
+    let user_identity_id = req.user.id;
+    //Si viene indicado por la url y comprobamos si existe
+    if(req.params.id) {
+        try {
+            const user_id = await User.findById({_id: req.params.id});
+            user_identity_id = req.params.id;
+            console.log("ID correcto");
+        } catch (error) {
+            return res.status(400).send({
+                message: "El ID no es correcto o no existe."
+            });
+        }
+    }
+
+    //Por defecto ponemos la página a 1 para que salga la primera lista
+    let page = 1;
+    //Si viene por url, se sobreescribe
+    if(req.params.page) page = req.params.page;
+    //Indicamos el número de usuarios por página
+    const itemsPerPage = 5;
+    
+    try {
+        //Paginate es un método propio de Mongoose. Hace falta importar mongoose-pagination
+        const users_following = await Follow.find({user: user_identity_id})
+        //Con populate podemos filtrar igual que haciendo un Select en una consulta
+        //En el primer params, indicamos las propiedas del objeto que salgan completas, en el segundo lo que queremos o no que salga
+        //Si queremos que NO salgan algunos campos, lo escribimos con el -
+        //.populate("user followed", "-password -role -__v")
+        //En este caso, si queremos que sólo salga el nombre y el nick, lo ponemos así:
+        .populate("followed", "nombre nick")
+        .paginate(page, itemsPerPage);
+        //Hacemos una consulta para sacar el total de usuarios que sigo para poder calcular el num páginas
+        const total_following = await Follow.find({user: user_identity_id});
+        if(users_following.length >= 1 && total_following.length >= 1){
+            return res.status(200).send({
+                message: "Listado de los usuarios que sigues.",
+                following: users_following,
+                total_following: total_following.length,
+                page: page,
+                //Dividimos el total de usuarios entre los usuarios por página. Math.ceil redondea al alza
+                total_pages: Math.ceil(total_following.length/itemsPerPage)
+            });
+        }else{
+            return res.status(400).send({
+                message: "No sigues a ningún usuario"
+            })
+        }
+
+    } catch (error) {
+        return res.status(500).send({
+            message: "Error al mostrar el listado de seguidores"
+        })
+    }
+}
+
 module.exports = {
     prueba3,
     followed,
-    unFollowed
+    unFollowed,
+    following
 }
