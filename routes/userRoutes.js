@@ -30,7 +30,7 @@ const subidas = multer({storage: almacenamiento});
 router.get("/prueba1", auth.authorizationLogin, userController.prueba1); //Incorporamos el Middleware definido de authorization
 router.post("/addUser", userController.addUser);
 router.post("/login", userController.login);
-router.get("/getDataUser/:id", auth.authorizationLogin, userController.getDataUser);
+router.get("/getDataUserProfile/:id", auth.authorizationLogin, userController.getDataUserProfile);
 router.get("/listUser/:page?", auth.authorizationLogin, userController.listUser);
 router.put("/updateUser", auth.authorizationLogin, userController.updateUser);
 //Single es porque se va a subir un solo fichero. Y el nombre "File" es el que debemos usar como Key al subir. 

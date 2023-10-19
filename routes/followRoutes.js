@@ -10,6 +10,7 @@ const auth = require("../middlewares/auth");
 router.get("/prueba3", followController.prueba3);
 router.post("/followed", auth.authorizationLogin, followController.followed);
 router.delete("/unFollowed/:id", auth.authorizationLogin, followController.unFollowed);
-router.get("/following/:id?/:page?", auth.authorizationLogin, followController.following)
+router.get("/following/:id?/:page?", auth.authorizationLogin, followController.following);
+router.get("/followingAndFollowers/:id?/:page?", auth.authorizationLogin, followController.followingAndFollowers);
 
 module.exports = router;

@@ -6,6 +6,7 @@ const jwt = require("../services/jwt");
 const pagination = require("mongoose-pagination");
 const fs = require("fs");
 const path = require("path");
+const followService = require("../services/followServices");
 
 //PRUEBA
 const prueba1 = (req, res) => {
@@ -103,18 +104,49 @@ const login = async (req, res) => {
 };
 
 //OBTENER DATOS DEL USUARIO REGISTRADO
-const getDataUser = async (req, res) => {
+const getDataUserProfile = async (req, res) => {
   const id = req.params.id;
   try {
     //Con select filtramos para que NO muestre la pass y el role
     const user_registered = await User.findById(id).select({password: 0, role: 0});
-    if (user_registered) {
+
+    //Obtener si seguimos o nos sigue este usuario desde el followService
+    const followingAndFollowMe = await followService.followThisUser(req.user.id, id);
+
+    if(!followingAndFollowMe.following && user_registered && followingAndFollowMe.follower){
       return res.status(200).send({
         message: "Usuario registrado encontrado",
-        user: user_registered,
-        user_token: req.user,
+        user_finded: user_registered,
+        user_token_identity: req.user,
+        following: "No sigues a este usuario",
+        follower: followingAndFollowMe.follower
+      });
+    }else if(followingAndFollowMe.following && user_registered && !followingAndFollowMe.follower){
+      return res.status(200).send({
+        message: "Usuario registrado encontrado",
+        user_finded: user_registered,
+        user_token_identity: req.user,
+        following: followingAndFollowMe.following,
+        follower: "Este usuario no te sigue"
+      });
+    }else if(!followingAndFollowMe.following && user_registered && !followingAndFollowMe.follower){
+      return res.status(200).send({
+        message: "Usuario registrado encontrado",
+        user_finded: user_registered,
+        user_token_identity: req.user,
+        following: "No sigues a este usuario",
+        follower: "Este usuario no te sigue"
+      });
+    }else{
+      return res.status(200).send({
+        message: "Usuario registrado encontrado",
+        user_finded: user_registered,
+        user_token_identity: req.user,
+        following: followingAndFollowMe.following,
+        follower: followingAndFollowMe.follower
       });
     }
+
   } catch (error) {
     return res.status(400).send({
       message: "No existe un usuario con este ID",
@@ -283,7 +315,7 @@ module.exports = {
   prueba1,
   addUser,
   login,
-  getDataUser,
+  getDataUserProfile,
   listUser,
   updateUser,
   uploadAvatar,

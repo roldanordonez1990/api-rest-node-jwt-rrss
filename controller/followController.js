@@ -3,6 +3,7 @@ const res = require("express/lib/response");
 const Follow = require("../model/Follow");
 const User = require("../model/User");
 const pagination = require("mongoose-pagination");
+const followService = require("../services/followServices");
 
 //PRUEBA
 const prueba3 = (req, res) => {
@@ -17,6 +18,12 @@ const followed = async(req, res) => {
     const user_identity_by_token = req.user;
     //Obtener al user que quiero seguir, hacer follow
     const user_followed_id = req.body.followed;
+    //Comprobamos que no podemos seguirnos a nosotros mismos
+    if(user_followed_id == user_identity_by_token.id){
+        return res.status(400).send({
+            message: "No puedes seguirte a ti mismo."
+        });
+    }
 
     try {
         //Comprobamos si el usuario que queremos seguir existe
@@ -173,9 +180,43 @@ const following = async(req, res) => {
     }
 }
 
+//LISTADO LIMPIO DE USUARIOS QUE SIGO Y QUE ME SIGUEN A MI
+const followingAndFollowers = async(req, res) => {
+    //Obtenemos el id del usuario identificado
+    let user_identity_id = req.user.id;
+    if(req.params.id) user_identity_id = req.params.id;
+    let followsIds = await followService.followedAndFollowersId(user_identity_id);
+    if(followsIds.followersId.length < 1 && followsIds.followingId.length < 1){
+        return res.status(200).send({
+            message: "Listado siguiendo y seguidores",
+            following: "No sigues a nadie",
+            followers: "Nadie te sigue"
+        })
+    }else if(followsIds.followingId.length < 1 && followsIds.followersId >= 1){
+        return res.status(200).send({
+            message: "Listado siguiendo y seguidores",
+            following: "No sigues a nadie",
+            followers: followsIds.followersId
+        })
+    }else if(followsIds.followingId.length >= 1 && followsIds.followersId < 1){
+        return res.status(200).send({
+            message: "Listado siguiendo y seguidores ok",
+            following: followsIds.followingId,
+            followers: "Nadie te sigue"
+        })
+    }else{
+        return res.status(200).send({
+            message: "Listado siguiendo y seguidores ok",
+            following: followsIds.followingId,
+            followers: followsIds.followersId
+        })
+    }
+}
+
 module.exports = {
     prueba3,
     followed,
     unFollowed,
-    following
+    following,
+    followingAndFollowers
 }
