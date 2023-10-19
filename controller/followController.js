@@ -149,6 +149,7 @@ const following = async(req, res) => {
     try {
         //Paginate es un método propio de Mongoose. Hace falta importar mongoose-pagination
         const users_following = await Follow.find({user: user_identity_id})
+        .select({_id: 0, __v: 0, created_at: 0})
         //Con populate podemos filtrar igual que haciendo un Select en una consulta
         //En el primer params, indicamos las propiedas del objeto que salgan completas, en el segundo lo que queremos o no que salga
         //Si queremos que NO salgan algunos campos, lo escribimos con el -
@@ -180,13 +181,68 @@ const following = async(req, res) => {
     }
 }
 
-//LISTADO LIMPIO DE USUARIOS QUE SIGO Y QUE ME SIGUEN A MI
+//LISTADO DE USUARIOS QUE ME SIGUEN
+const followers = async(req, res) => {
+    //Obtener el id del usuario registrado
+    let user_identity_id = req.user.id;
+    //Si viene indicado por la url y comprobamos si existe
+    if(req.params.id) {
+        try {
+            const user_id = await User.findById({_id: req.params.id});
+            user_identity_id = req.params.id;
+            console.log("ID correcto");
+        } catch (error) {
+            return res.status(400).send({
+                message: "El ID no es correcto o no existe."
+            });
+        }
+    }
+
+    //Por defecto ponemos la página a 1 para que salga la primera lista
+    let page = 1;
+    //Si viene por url, se sobreescribe
+    if(req.params.page) page = req.params.page;
+    //Indicamos el número de usuarios por página
+    const itemsPerPage = 5;
+    
+    try {
+        const users_followers = await Follow.find({followed: user_identity_id})
+        .select({_id: 0, __v: 0, created_at: 0})
+        .populate("user", "nombre nick")
+        .paginate(page, itemsPerPage);
+        //Hacemos una consulta para sacar el total de usuarios que sigo para poder calcular el num páginas
+        const total_followers = await Follow.find({followed: user_identity_id});
+        if(users_followers.length >= 1 && total_followers.length >= 1){
+            return res.status(200).send({
+                message: "Listado de los usuarios que me siguen.",
+                followers: users_followers,
+                total_followers: total_followers.length,
+                page: page,
+                //Dividimos el total de usuarios entre los usuarios por página. Math.ceil redondea al alza
+                total_pages: Math.ceil(total_followers.length/itemsPerPage)
+            });
+        }else{
+            return res.status(400).send({
+                message: "No te sigue ningún usuario"
+            })
+        }
+
+    } catch (error) {
+        return res.status(500).send({
+            message: "Error al mostrar el listado de seguidores"
+        })
+    }
+
+}
+
+//LISTADO LIMPIO DE USUARIOS QUE SIGO
 const followingAndFollowers = async(req, res) => {
     //Obtenemos el id del usuario identificado
     let user_identity_id = req.user.id;
     if(req.params.id) user_identity_id = req.params.id;
     //Obtenemos ambos listados de la consulta del servicio
-    let followsIds = await followService.followedAndFollowersId(user_identity_id);
+    let followsIds = await followService.followingAndFollowersId(user_identity_id);
+
     if(followsIds.followersId.length < 1 && followsIds.followingId.length < 1){
         return res.status(200).send({
             message: "Listado siguiendo y seguidores",
@@ -219,5 +275,6 @@ module.exports = {
     followed,
     unFollowed,
     following,
+    followers,
     followingAndFollowers
 }

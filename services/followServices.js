@@ -1,7 +1,7 @@
 const Follow = require("../model/Follow");
 
 //FOLLOWING AND FOLLOWERS
-const followedAndFollowersId = async(identityUserId) => {
+const followingAndFollowersId = async(identityUserId) => {
 
     try {
         //Recogemos a todos los usuarios que nosotros seguimos (followed). 
@@ -37,9 +37,9 @@ const followedAndFollowersId = async(identityUserId) => {
 const followThisUser = async(identityUserId, userProfileId) =>{
     try {
         //¿Lo sigo yo a él?
-        const following = await Follow.findOne({user: identityUserId, followed: userProfileId});
+        const following = await Follow.findOne({user: identityUserId, followed: userProfileId}).select({"user": 1, "followed": 1});
         //¿Me sigue él a mi?
-        const follower = await Follow.findOne({user: userProfileId, followed: identityUserId});
+        const follower = await Follow.findOne({user: userProfileId, followed: identityUserId}).select({"user": 1, "followed": 1});
 
         return {
             following,
@@ -51,6 +51,6 @@ const followThisUser = async(identityUserId, userProfileId) =>{
 }
 
 module.exports = {
-    followedAndFollowersId,
+    followingAndFollowersId,
     followThisUser
 }

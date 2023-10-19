@@ -108,7 +108,7 @@ const getDataUserProfile = async (req, res) => {
   const id = req.params.id;
   try {
     //Con select filtramos para que NO muestre la pass y el role
-    const user_registered = await User.findById(id).select({password: 0, role: 0});
+    const user_registered = await User.findById(id).select({password: 0, role: 0, __v: 0});
 
     //Obtener si seguimos o nos sigue este usuario desde el followService
     const followingAndFollowMe = await followService.followThisUser(req.user.id, id);
@@ -171,6 +171,9 @@ const listUser = async (req, res) => {
     //Paginate es un método propio de Mongoose. Hace falta importar mongoose-pagination
     const list_users_finded = await User.find().sort("_id").paginate(page, itemForPage);
 
+    //Obtenemos ambos listados (Following And Followers) de la consulta del servicio.
+    let followsIds = await followService.followingAndFollowersId(req.user.id);
+
     if (list_users_finded) {
       //Hacemos una consulta para sacar el total de usuarios que hay para poder calcular el num páginas
       const total_users = await User.find();
@@ -182,6 +185,8 @@ const listUser = async (req, res) => {
         total_users: total_users.length,
         //Dividimos el total de usuarios entre los usuarios por página. Math.ceil redondea al alza
         total_pages: Math.ceil(total_users.length / itemForPage),
+        following: followsIds.followingId,
+        followers: followsIds.followersId
       });
     }
   } catch (error) {
