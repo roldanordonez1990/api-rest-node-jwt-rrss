@@ -1,6 +1,6 @@
 const Follow = require("../model/Follow");
 
-//FOLLOWED AND FOLLOWERS
+//FOLLOWING AND FOLLOWERS
 const followedAndFollowersId = async(identityUserId) => {
 
     try {
@@ -12,10 +12,10 @@ const followedAndFollowersId = async(identityUserId) => {
 
         //El método anterior nos devuelve un array de OBJETOS. 
         //Pero lo que queremos es sacar una ARRAY limpio con esos ID.
-        let followedArray = [];
+        let followingArray = [];
         following.forEach(follow =>{
-            followedArray.push(follow.followed);
-        })
+            followingArray.push(follow.followed);
+        });
         
         let followersArray = [];
         followers.forEach(follow =>{
@@ -23,7 +23,7 @@ const followedAndFollowersId = async(identityUserId) => {
         });
 
         return {
-            followingId: followedArray,
+            followingId: followingArray,
             followersId: followersArray
         }
             
@@ -33,7 +33,7 @@ const followedAndFollowersId = async(identityUserId) => {
 }
 
 //MÉTODO PARA SABER INDIVIDUALMENTE SI UN USER ME SIGUE Y YO A ÉL
-//SE VERÁ EN EL MÉTODO GETDATAUSER DEL USERCONTROLLER
+//SE VERÁ EN EL MÉTODO GETDATAUSERPROFILE DEL USERCONTROLLER
 const followThisUser = async(identityUserId, userProfileId) =>{
     try {
         //¿Lo sigo yo a él?

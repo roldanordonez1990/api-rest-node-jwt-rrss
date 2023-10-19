@@ -185,31 +185,32 @@ const followingAndFollowers = async(req, res) => {
     //Obtenemos el id del usuario identificado
     let user_identity_id = req.user.id;
     if(req.params.id) user_identity_id = req.params.id;
+    //Obtenemos ambos listados de la consulta del servicio
     let followsIds = await followService.followedAndFollowersId(user_identity_id);
     if(followsIds.followersId.length < 1 && followsIds.followingId.length < 1){
         return res.status(200).send({
             message: "Listado siguiendo y seguidores",
             following: "No sigues a nadie",
             followers: "Nadie te sigue"
-        })
+        });
     }else if(followsIds.followingId.length < 1 && followsIds.followersId >= 1){
         return res.status(200).send({
             message: "Listado siguiendo y seguidores",
             following: "No sigues a nadie",
             followers: followsIds.followersId
-        })
+        });
     }else if(followsIds.followingId.length >= 1 && followsIds.followersId < 1){
         return res.status(200).send({
-            message: "Listado siguiendo y seguidores ok",
+            message: "Listado siguiendo y seguidores",
             following: followsIds.followingId,
             followers: "Nadie te sigue"
-        })
+        });
     }else{
         return res.status(200).send({
-            message: "Listado siguiendo y seguidores ok",
+            message: "Listado siguiendo y seguidores",
             following: followsIds.followingId,
             followers: followsIds.followersId
-        })
+        });
     }
 }
 
