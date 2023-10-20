@@ -22,7 +22,7 @@ const addUser = async (req, res) => {
   //Si se envía vacío alguno de estos campos requeridos..
   if (!params.nombre || !params.nick || !params.email || !params.password) {
     return res.status(400).json({
-      mensaje: "Bad request. Faltan datos",
+      mensaje: "Bad request. Faltan datos."
     });
   }
   //Dentro de find, el $or es como un condicional ||
@@ -37,23 +37,29 @@ const addUser = async (req, res) => {
   if (user_repeat.length >= 1) {
     console.log(user_repeat.length);
     return res.status(200).json({
-      mensaje: "Ya existe un usuario con estos datos",
+      mensaje: "Ya existe un usuario con estos datos.",
     });
   } else {
-    //Primero encriptamos la pass con la librería bcrypt. El 10 son el número de veces que encripta
-    let pass_encriptada = await bcrypt.hash(params.password, 10);
-    params.password = pass_encriptada;
+      try {
+      //Primero encriptamos la pass con la librería bcrypt. El 10 son el número de veces que encripta
+      let pass_encriptada = await bcrypt.hash(params.password, 10);
+      params.password = pass_encriptada;
 
-    //Se guarda el nuevo usuario
-    let user_to_save = await new User(params).save();
+      //Se guarda el nuevo usuario
+      let user_to_save = await new User(params).save();
 
-    if (!user_to_save || user_to_save == null)
-      return res.status(500).send({ message: "Error al guardar el usuario" });
+      if (!user_to_save || user_to_save == null)
+        return res.status(500).send({ message: "Error al guardar el usuario" });
 
-    return res.status(200).json({
-      message: "Usuario guardado correctamente",
-      user: user_to_save,
-    });
+      return res.status(200).json({
+        message: "Usuario guardado correctamente.",
+        user: user_to_save
+      });
+    } catch (error) {
+      return res.status(500).json({
+        mensaje: "Error al guardar el usuario.",
+      });  
+    }
   }
 };
 
@@ -73,7 +79,7 @@ const login = async (req, res) => {
 
   if (!user_finded) {
     return res.status(404).send({
-      message: "No se ha encontrado al usuario deseado",
+      message: "No se ha encontrado al usuario deseado.",
     });
   }
 
@@ -85,11 +91,11 @@ const login = async (req, res) => {
 
   if (!passaword_validated) {
     return res.status(404).send({
-      message: "No te has identificado correctamente",
+      message: "No te has identificado correctamente.",
     });
   } else {
     return res.status(200).send({
-      message: "Te has identificado correctamente",
+      message: "Te has identificado correctamente.",
       //Devolvemos sólo los datos que queremos enviar
       user: {
         id: user_finded._id,
@@ -98,7 +104,7 @@ const login = async (req, res) => {
         bio: user_finded.bio,
         email: user_finded.email,
       },
-      token: token_jwt,
+      token: token_jwt
     });
   }
 };
@@ -245,7 +251,7 @@ const updateUser = async (req, res) => {
     try {
       const user_updated = await User.findByIdAndUpdate({_id: user_token_identity.id}, user_to_update, {new: true}).select({"role" :0});
       return res.status(200).send({
-        message: "update ok",
+        message: "Has actualizado tu usuario correctamente.",
         user_token_identity: user_token_identity,
         user_to_update: user_to_update,
         user_updated: user_updated
@@ -275,7 +281,7 @@ const uploadAvatar = async(req, res) =>{
       const image_user_updated = await User.findByIdAndUpdate(req.user.id, {imagen: req.file.filename}, {new: true});
       if(image_user_updated){
         return res.status(200).send({
-          message: "upload avatar ok.",
+          message: "Has actualizado tu avatar correctamente.",
           file: req.file,
           extension: extension,
           image_user_updated: image_user_updated.imagen
@@ -283,7 +289,7 @@ const uploadAvatar = async(req, res) =>{
       }
     } catch (error) {
       return res.status(400).json({
-        message: "Error al actualizar la imagen del ususario."
+        message: "Error al actualizar el avatar del ususario."
       });
     }
     
@@ -310,7 +316,7 @@ const getAvatar = (req, res) =>{
       return res.sendFile(path.resolve(ruta_fisica));
     }else{
       return res.status(404).send({
-        message: "El filename no es correcto o no existe"
+        message: "El filename no es correcto o no existe."
       })
     }
   });

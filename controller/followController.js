@@ -13,7 +13,7 @@ const prueba3 = (req, res) => {
 }
 
 //SEGUIR A UN USUARIO - FOLLOW
-const followed = async(req, res) => {
+const follow = async(req, res) => {
     //Obtener el user identity con el token. Este user es el que quiere seguir a otro
     const user_identity_by_token = req.user;
     //Obtener al user que quiero seguir, hacer follow
@@ -21,7 +21,7 @@ const followed = async(req, res) => {
     //Comprobamos que no podemos seguirnos a nosotros mismos
     if(user_followed_id == user_identity_by_token.id){
         return res.status(400).send({
-            message: "No puedes seguirte a ti mismo."
+            message: "No puedes seguirte a tí mismo."
         });
     }
 
@@ -32,7 +32,7 @@ const followed = async(req, res) => {
 
     } catch (error) {
         return res.status(404).send({
-            message: "Este usuario no existe"
+            message: "Este usuario no existe."
         });
     }
 
@@ -170,13 +170,13 @@ const following = async(req, res) => {
             });
         }else{
             return res.status(400).send({
-                message: "No sigues a ningún usuario"
+                message: "No sigues a ningún usuario."
             })
         }
 
     } catch (error) {
         return res.status(500).send({
-            message: "Error al mostrar el listado de seguidores"
+            message: "Error al mostrar el listado de seguidores."
         })
     }
 }
@@ -223,13 +223,13 @@ const followers = async(req, res) => {
             });
         }else{
             return res.status(400).send({
-                message: "No te sigue ningún usuario"
+                message: "No te sigue ningún usuario."
             })
         }
 
     } catch (error) {
         return res.status(500).send({
-            message: "Error al mostrar el listado de seguidores"
+            message: "Error al mostrar el listado de seguidores."
         })
     }
 
@@ -272,7 +272,7 @@ const followingAndFollowers = async(req, res) => {
 
 module.exports = {
     prueba3,
-    followed,
+    follow,
     unFollowed,
     following,
     followers,
