@@ -48,9 +48,6 @@ const addUser = async (req, res) => {
       //Se guarda el nuevo usuario
       let user_to_save = await new User(params).save();
 
-      if (!user_to_save || user_to_save == null)
-        return res.status(500).send({ message: "Error al guardar el usuario" });
-
       return res.status(200).json({
         message: "Usuario guardado correctamente.",
         user: user_to_save
