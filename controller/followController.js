@@ -80,8 +80,9 @@ const unFollowed = async(req, res) => {
     const user_identity = req.user;
     //Obtener el id del usuario que queremos hacer unFollow
     const id_params = req.params.id;
-    //Coprobamos que el ID que pasamos existe
+    
     try {
+        //Coprobamos que el ID que pasamos existe
         const find_user_by_id = await User.findById({_id: id_params});
         console.log("ID correcto")
     } catch (error) {
