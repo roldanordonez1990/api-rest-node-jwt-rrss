@@ -12,13 +12,16 @@ const addPublication = async(req, res) => {
     //Obtenemos el id del usuario registrado
     const user_identity_id = req.user.id;
     //Recogemos los parámetros enviados por post
-    const params = req.body;
+    let params = req.body;
     //Comprobamos que nos llegan 
     if(!params.text) return res.status(400).send({message: "Faltan datos por enviar."});
+    //Asignamos el user dentro del objeto params
+    params.user = user_identity_id;
+    //params.file = "default.png";
 
     try {
         //Creamos la nueva publicación
-        const new_publication = await new Publication({user: user_identity_id, text: params.text}).save();
+        const new_publication = await new Publication(params).save();
 
         return res.status(200).send({
             message: "Has añadido una nueva publicación con éxito.",
