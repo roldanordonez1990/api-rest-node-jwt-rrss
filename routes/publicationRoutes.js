@@ -13,5 +13,6 @@ router.get("/prueba2", publicationController.prueba2);
 router.post("/addPublication", auth.authorizationLogin, publicationController.addPublication);
 router.get("/getPublicationDetail/:id?", auth.authorizationLogin, publicationController.getPublicationDetail);
 router.delete("/removePublication/:id?", auth.authorizationLogin, publicationController.removePublication);
+router.get("/getPublicationsUser/:id?/:page?", auth.authorizationLogin, publicationController.getPublicationsUser);
 
 module.exports = router;

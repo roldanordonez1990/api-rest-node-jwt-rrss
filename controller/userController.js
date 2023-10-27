@@ -177,7 +177,7 @@ const listUser = async (req, res) => {
     //Obtenemos ambos listados (Following And Followers) de la consulta del servicio.
     let followsIds = await followService.followingAndFollowersId(req.user.id);
 
-    if (list_users_finded) {
+    if (list_users_finded.length >= 1) {
       //Hacemos una consulta para sacar el total de usuarios que hay para poder calcular el num páginas
       const total_users = await User.find();
       return res.status(200).send({
@@ -191,10 +191,14 @@ const listUser = async (req, res) => {
         following: followsIds.followingId,
         followers: followsIds.followersId
       });
+    }else{
+      return res.status(404).send({
+        message: "No se han encontrado usuarios"
+      });
     }
   } catch (error) {
     return res.status(404).send({
-      message: "No se han encontrado usuarios",
+      message: "Error al listar usuarios."
     });
   }
 };
