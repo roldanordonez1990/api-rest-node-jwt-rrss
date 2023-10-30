@@ -6,7 +6,7 @@ const router = express.Router();
 const followController = require("../controller/followController");
 const auth = require("../middlewares/auth");
 
-//DEFINIMOS LAS RUTAS PARA USER
+//DEFINIMOS LAS RUTAS PARA FOLLOW
 router.get("/prueba3", followController.prueba3);
 router.post("/follow", auth.authorizationLogin, followController.follow);
 router.delete("/unFollowed/:id", auth.authorizationLogin, followController.unFollowed);

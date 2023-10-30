@@ -1,6 +1,8 @@
 const Publication = require("../model/Publication");
 const User = require("../model/User");
 const pagination = require("mongoose-pagination");
+const fs = require("fs");
+const path = require("path");
 
 //PRUEBA
 const prueba2 = (req, res) => {
@@ -146,10 +148,82 @@ const getPublicationsUser = async (req, res) => {
     }
 }
 
+//SUBIDA DE IMAGEN EN LA PUBLICACIÓN
+const uploadPublicationImg = async(req, res) =>{
+    //Comprobamos que llega el id de publicación
+    const publicationId = req.params.id;
+    if(!publicationId) return res.status(400).send({message: "No has indicado publicación."});
+    //Comprobamos que la publicación existe
+    try {
+        const finded_publication = await Publication.findOne({_id: publicationId});
+        console.log("Esta publicación sí existe: " + finded_publication._id);
+    } catch (error) {
+        return res.status(404).send({message: "Esta publicación no existe."})
+    }
+    //Comprobamos que llega el file de publicación
+    if(!req.file) return res.status(403).send({ message: "Petición inválida. No se ha enviado File"});
+    
+    //Obtenemos el nombre de la imagen subida
+    let nombre_img = req.file.originalname;
+    //Obtenemos la extensión usando split y cortando a partir del punto
+    //extensión devolverá un array. Ej: Si el nombre es Woody.jpg -> ["Woody", "jpg"]
+    let extension_split = nombre_img.split(".");
+    let extension = extension_split[1];
+    if(extension == "png" || extension == "jpeg" || extension == "jpg" || extension == "gift"){
+      try {
+        //Actualizamos la publicación subiendo la imagen
+        const file_updated = await Publication.findByIdAndUpdate({_id: publicationId}, {file: req.file.filename}, {new: true});
+        if(file_updated){
+          return res.status(200).send({
+            message: "Has subido la imagen correctamente.",
+            file: req.file,
+            extension: extension,
+            file_publication_updated: file_updated
+          });
+        }
+      } catch (error) {
+        return res.status(400).json({
+          message: "Error al subir la imagen de publicación."
+        });
+      }
+      
+    }else{
+      //fileSistem (fs) es una librería con la cual podemos borrar el fichero y no se sube
+      //Le pasamos el path completo
+      fs.unlinkSync(req.file.path);
+        return res.status(400).json({
+            message: "Formato incorrecto. Archivo no subido."
+        });
+    }
+  }
+
+//OBTENER LA IMAGEN O RUTA ABSOLUTA DE LA PUBLICACIÓN
+const getImgPublication = (req, res) =>{
+    //Comprobamos que llega el filename por la url
+    if(!req.params.filename) return res.status(400).send({message: "No has indicado el filename."});
+    //Obtenemos el nombre del file por el parámetro de la ruta
+    const filename = req.params.filename;
+    //Creamos un path absoluto de la imagen
+    const ruta_fisica = "./images/publications/"+filename;
+    //el método stat dentro de fileSystem, nos dice si existe o no esa ruta
+    fs.stat(ruta_fisica, (err, exists) => {
+      if(exists){
+        //Si existe, se envía la imagen con sendFile y la librería path
+        return res.sendFile(path.resolve(ruta_fisica));
+      }else{
+        return res.status(404).send({
+          message: "El filename no es correcto o no existe."
+        })
+      }
+    });
+  }
+
 module.exports = {
     prueba2,
     addPublication,
     getPublicationDetail,
     removePublication,
-    getPublicationsUser
+    getPublicationsUser,
+    uploadPublicationImg,
+    getImgPublication
 }

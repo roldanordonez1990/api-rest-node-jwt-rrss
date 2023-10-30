@@ -16,7 +16,7 @@ const almacenamiento = multer.diskStorage({
         cb(null, "./images/avatars");
     },
     //cb en este caso es el nombre del FILENAME que le queremos dar al fichero subido.
-    //Empieza por la palabra artículo + fecha + nombre original.
+    //Empieza por la palabra avatar + fecha + nombre original.
     filename: (req, file, cb) => {
         cb(null, "avatar-" + Date.now() +"-"+file.originalname);
 
