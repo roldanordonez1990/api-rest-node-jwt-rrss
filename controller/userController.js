@@ -172,7 +172,9 @@ const listUser = async (req, res) => {
     const itemForPage = 5;
 
     //Paginate es un método propio de Mongoose. Hace falta importar mongoose-pagination
-    const list_users_finded = await User.find().sort("_id").paginate(page, itemForPage);
+    const list_users_finded = await User.find().sort("_id")
+    .select({"__v": 0, "password": 0, "role": 0, "email": 0})
+    .paginate(page, itemForPage);
 
     //Obtenemos ambos listados (Following And Followers) de la consulta del servicio.
     let followsIds = await followService.followingAndFollowersId(req.user.id);
@@ -250,7 +252,8 @@ const updateUser = async (req, res) => {
     }
     //Actualizamos el user
     try {
-      const user_updated = await User.findByIdAndUpdate({_id: user_token_identity.id}, user_to_update, {new: true}).select({"role" :0});
+      const user_updated = await User.findByIdAndUpdate({_id: user_token_identity.id}, user_to_update, {new: true})
+      .select({"role" :0, "passowrd": 0, "__v": 0});
       return res.status(200).send({
         message: "Has actualizado tu usuario correctamente.",
         user_token_identity: user_token_identity,

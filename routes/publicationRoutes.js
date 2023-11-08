@@ -34,5 +34,6 @@ router.delete("/removePublication/:id?", auth.authorizationLogin, publicationCon
 router.get("/getPublicationsUser/:id?/:page?", auth.authorizationLogin, publicationController.getPublicationsUser);
 router.post("/uploadPublicationImg/:id?", [auth.authorizationLogin, subidas.single("file")], publicationController.uploadPublicationImg);
 router.get("/getImgPublication/:filename?", auth.authorizationLogin, publicationController.getImgPublication);
+router.get("/feed/:page?", auth.authorizationLogin, publicationController.feed);
 
 module.exports = router;

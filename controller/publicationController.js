@@ -3,6 +3,7 @@ const User = require("../model/User");
 const pagination = require("mongoose-pagination");
 const fs = require("fs");
 const path = require("path");
+const followService = require("../services/followServices");
 
 //PRUEBA
 const prueba2 = (req, res) => {
@@ -218,6 +219,53 @@ const getImgPublication = (req, res) =>{
     });
   }
 
+  //FEED DE PUBLICACIONES (MURO)
+  const feed = async(req, res) => {
+      //Obtener el id del usuario registrado
+      const userId = req.user.id;
+      //Obtener la página
+      let page = 1;
+      if(req.params.page) page = req.params.page;
+      //Publicaciones fijas por página
+      const itemsForPage = 5;
+
+      try {
+            //Primero sacamos un array de todos los id de los usuarios que seguimos (Following)
+            const following = await followService.followingAndFollowersId(req.user.id);
+            //Mostramos todas las publicaciones de los usuarios que sigo
+            //Dentro del método find, con la propiedad $in, hará "match" de las publicaciones cuyo user coincida con mis following
+            const feed_publications = await Publication.find({
+                user: {"$in": following.followingId}
+            })
+            .sort("-created_at")
+            .select({"__v": 0})
+            .populate("user", "_id nombre nick")
+            .paginate(page, itemsForPage);
+
+            //Sacamos el total de publicaciones con otra consulta a parte. La anterior sólo sacaría el total por página
+            const total_feed_publications = await Publication.find({
+                user: {"$in": following.followingId}
+            });
+
+            if(feed_publications.length >=1 && total_feed_publications.length >= 1){
+                return res.status(200).send({
+                    message: "Mostrando Feed correctamente.",
+                    following: following.followingId,
+                    page: page,
+                    itemsForPage: itemsForPage,
+                    total_publications: total_feed_publications.length,
+                    total_pages: Math.ceil(total_feed_publications.length/itemsForPage),
+                    feed_publications: feed_publications
+                });
+            }else{
+                return res.status(200).send({message: "No hay publicaciones que mostrar en el feed."});
+            }
+            
+      } catch (error) {
+        return res.status(500).send({message: "Error al mostrar el feed."});
+      }
+  }
+
 module.exports = {
     prueba2,
     addPublication,
@@ -225,5 +273,6 @@ module.exports = {
     removePublication,
     getPublicationsUser,
     uploadPublicationImg,
-    getImgPublication
+    getImgPublication,
+    feed
 }
