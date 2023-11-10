@@ -11,7 +11,7 @@ const { secret_key } = require("../services/jwt");
 const authorizationLogin = (req, res, next) => {
   if (!req.headers.authorization) {
     return res.status(403).send({
-      message: "Missing header authorization",
+      message: "Missing header authorization.",
     });
   }
 
@@ -19,13 +19,13 @@ const authorizationLogin = (req, res, next) => {
   //Obtenemos el token enviado por el headers
   let token_encoded = req.headers.authorization.replace(/['"]+/g, "");
 
-  //Decodificar el toker
+  //Decodificar el token
   try {
     let payload_user_token = jwt.decode(token_encoded, secret_key);
-    //Comprobamos si la fecha de expiración ha caducado. Si es < que la fecha actual
+    //Comprobamos si la fecha de expiración ha caducado. Si es < que la fecha actual. Es porque la fecha está en UNIX
     if (payload_user_token.exp <= moment().unix()) {
       return res.status(401).send({
-        message: "Error. El token ha expirado",
+        message: "Error. El token ha expirado.",
       });
     }
     //Añadimos el usuario en cada request. ¿¿ESTO ES COMO SI FUESE EL INTERCEPTOR DE ANGULAR??
@@ -34,8 +34,8 @@ const authorizationLogin = (req, res, next) => {
     req.user = payload_user_token;
   } catch (error) {
     return res.status(404).send({
-      message: "Invalid Token",
-      error,
+      message: "Invalid Token.",
+      error
     });
   }
   //Continuamos a la siguiente acción de la petición. En este caso el controlador.
