@@ -37,5 +37,6 @@ router.put("/updateUser", auth.authorizationLogin, userController.updateUser);
 //Se puede poner el que quieras
 router.post("/uploadAvatar", [auth.authorizationLogin, subidas.single("file")], userController.uploadAvatar);
 router.get("/getAvatar/:filename", auth.authorizationLogin, userController.getAvatar);
+router.get("/counter/:id?", auth.authorizationLogin, userController.counter);
 
 module.exports = router;

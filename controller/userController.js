@@ -7,6 +7,8 @@ const pagination = require("mongoose-pagination");
 const fs = require("fs");
 const path = require("path");
 const followService = require("../services/followServices");
+const Follow = require("../model/Follow");
+const Publication = require("../model/Publication");
 
 //PRUEBA
 const prueba1 = (req, res) => {
@@ -326,6 +328,39 @@ const getAvatar = (req, res) =>{
   });
 }
 
+//CONTADOR DE SEGUIDORES, SEGUIDOS Y PUBLICACIONES
+  const counter = async(req, res) =>{
+  //Comprobamos que se envía el id de usuario
+  if(!req.params.id) return res.status(400).send({message: "No has especificado identificador."});
+  //Comprobamos que existe el id de usuario
+  try {
+    const user_finded = await User.findById({_id: req.params.id})
+    console.log("Este usuario sí existe.");
+  } catch (error) {
+    return res.status(404).send({message: "Este usuario no existe."});
+  }
+  //Si existe, lo guardamos en una constante
+  const user_id_params = req.params.id;
+  try {
+    //Contador de usuario que estoy siguiendo
+    const following = await Follow.count({user: user_id_params});
+    //Contador de usuarios que me siguen
+    const followers = await Follow.count({followed: user_id_params});
+    //Contador de publicaciones que tengo
+    const publication = await Publication.count({user: user_id_params});
+
+    return res.status(200).send({
+      message: "Contador calculado correctamente.",
+      following: following,
+      followers: followers,
+      publication: publication
+    });
+
+  } catch (error) {
+    return res.status(500).send({message: "Error en el contador."});
+  }
+}
+
 module.exports = {
   prueba1,
   addUser,
@@ -334,5 +369,6 @@ module.exports = {
   listUser,
   updateUser,
   uploadAvatar,
-  getAvatar
+  getAvatar,
+  counter
 };
