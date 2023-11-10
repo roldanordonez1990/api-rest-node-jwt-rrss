@@ -250,6 +250,7 @@ const getImgPublication = (req, res) =>{
             if(feed_publications.length >=1 && total_feed_publications.length >= 1){
                 return res.status(200).send({
                     message: "Mostrando Feed correctamente.",
+                    user_identity: req.user.nick,
                     following: following.followingId,
                     page: page,
                     itemsForPage: itemsForPage,
