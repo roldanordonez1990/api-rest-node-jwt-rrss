@@ -13,7 +13,7 @@ const Publication = require("../model/Publication");
 //PRUEBA
 const prueba1 = (req, res) => {
   return res.status(200).json({
-    mensaje: "Prueba user funcionando",
+    message: "Prueba user funcionando",
     user: req.user,
   });
 };
@@ -24,7 +24,7 @@ const addUser = async (req, res) => {
   //Si se envía vacío alguno de estos campos requeridos..
   if (!params.nombre || !params.nick || !params.email || !params.password) {
     return res.status(400).json({
-      mensaje: "Bad request. Faltan datos."
+      message: "Bad request. Faltan datos."
     });
   }
   //Dentro de find, el $or es como un condicional ||
@@ -39,7 +39,7 @@ const addUser = async (req, res) => {
   if (user_repeat.length >= 1) {
     console.log(user_repeat.length);
     return res.status(200).json({
-      mensaje: "Ya existe un usuario con estos datos.",
+      message: "Ya existe un usuario con estos datos.",
     });
   } else {
       try {
