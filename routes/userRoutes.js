@@ -36,7 +36,7 @@ router.put("/updateUser", auth.authorizationLogin, userController.updateUser);
 //Single es porque se va a subir un solo fichero. Y el nombre "File" es el que debemos usar como Key al subir. 
 //Se puede poner el que quieras
 router.post("/uploadAvatar", [auth.authorizationLogin, subidas.single("file")], userController.uploadAvatar);
-router.get("/getAvatar/:filename", auth.authorizationLogin, userController.getAvatar);
+router.get("/getAvatar/:filename", userController.getAvatar);
 router.get("/counter/:id?", auth.authorizationLogin, userController.counter);
 
 module.exports = router;
