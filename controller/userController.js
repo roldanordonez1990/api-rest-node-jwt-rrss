@@ -342,7 +342,7 @@ const getAvatar = (req, res) =>{
   //Si existe, lo guardamos en una constante
   const user_id_params = req.params.id;
   try {
-    //Contador de usuario que estoy siguiendo
+    //Contador de usuarios que estoy siguiendo
     const following = await Follow.count({user: user_id_params});
     //Contador de usuarios que me siguen
     const followers = await Follow.count({followed: user_id_params});
