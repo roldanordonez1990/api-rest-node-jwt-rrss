@@ -97,7 +97,7 @@ const login = async (req, res) => {
       message: "Te has identificado correctamente.",
       //Devolvemos sólo los datos que queremos enviar
       user: {
-        id: user_finded._id,
+        _id: user_finded._id,
         nombre: user_finded.nombre,
         nick: user_finded.nick,
         bio: user_finded.bio,
@@ -113,10 +113,10 @@ const getDataUserProfile = async (req, res) => {
   const id = req.params.id;
   try {
     //Con select filtramos para que NO muestre la pass y el role
-    const user_registered = await User.findById(id).select({password: 0, role: 0, __v: 0});
+    const user_registered = await User.findById({_id:id}).select({password: 0, role: 0, __v: 0});
 
     //Obtener si seguimos o nos sigue este usuario desde el followService
-    const followingAndFollowMe = await followService.followThisUser(req.user.id, id);
+    const followingAndFollowMe = await followService.followThisUser(req.user._id, id);
 
     if(!followingAndFollowMe.following && user_registered && followingAndFollowMe.follower){
       return res.status(200).send({
@@ -179,7 +179,7 @@ const listUser = async (req, res) => {
     .paginate(page, itemForPage);
 
     //Obtenemos ambos listados (Following And Followers) de la consulta del servicio.
-    let followsIds = await followService.followingAndFollowersId(req.user.id);
+    let followsIds = await followService.followingAndFollowersId(req.user._id);
 
     if (list_users_finded.length >= 1) {
       //Hacemos una consulta para sacar el total de usuarios que hay para poder calcular el num páginas
@@ -230,7 +230,7 @@ const updateUser = async (req, res) => {
   //Si el email o el nick que queremos actualizar ya existe en la BBDD, ese usuario ya existe.
   let flag = false;
   //Si enviamos los campos vacíos
-  if(user_to_update.nick == "" || user_to_update.email == "" || user_to_update.nombre == ""){
+  if(user_to_update.nick == "" || user_to_update.email == ""){
     return res.status(404).send({
       message: "No puedes actualizar con los campos vacíos.",
     });
@@ -238,7 +238,7 @@ const updateUser = async (req, res) => {
   user_repeat.forEach(users => {
     //Al poner un email o nick que ya existe, el users.id será el de ese usuario encontrado,
     //que será diferente al nuestro, obtenido mediante el token.
-    if (users._id != user_token_identity.id) {
+    if (users._id != user_token_identity._id) {
       flag = true;
     }
   });
@@ -247,7 +247,7 @@ const updateUser = async (req, res) => {
         message: "Este ususario ya existe.",
       });
     }
-    //Encriptamos primero la password, en caso de que la cambie
+    //Encriptamos primero la password, la cambie o llegue la misma
     if(user_to_update.password){
       let password_new = await bcrypt.hash(user_to_update.password, 10);
       user_to_update.password = password_new;
@@ -257,7 +257,7 @@ const updateUser = async (req, res) => {
     }
     //Actualizamos el user
     try {
-      const user_updated = await User.findByIdAndUpdate({_id: user_token_identity.id}, user_to_update, {new: true})
+      const user_updated = await User.findOneAndUpdate({_id: user_token_identity._id}, user_to_update, {new: true})
       .select({"role" :0, "__v": 0});
       return res.status(200).send({
         message: "Has actualizado tu usuario correctamente.",
@@ -287,7 +287,7 @@ const uploadAvatar = async(req, res) =>{
   let extension = extension_split[1];
   if(extension == "png" || extension == "jpeg" || extension == "jpg" || extension == "gift"){
     try {
-      const image_user_updated = await User.findByIdAndUpdate(req.user.id, {imagen: req.file.filename}, {new: true});
+      const image_user_updated = await User.findByIdAndUpdate(req.user._id, {imagen: req.file.filename}, {new: true});
       if(image_user_updated){
         return res.status(200).send({
           message: "Has actualizado tu avatar correctamente.",

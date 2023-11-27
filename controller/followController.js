@@ -19,7 +19,7 @@ const follow = async(req, res) => {
     //Obtener al user que quiero seguir, hacer follow
     const user_followed_id = req.body.followed;
     //Comprobamos que no podemos seguirnos a nosotros mismos
-    if(user_followed_id == user_identity_by_token.id){
+    if(user_followed_id == user_identity_by_token._id){
         return res.status(400).send({
             message: "No puedes seguirte a tí mismo."
         });
@@ -40,7 +40,7 @@ const follow = async(req, res) => {
     const find_object_followed = await Follow.find(
         {
             $and: [
-                { user: user_identity_by_token.id },
+                { user: user_identity_by_token._id },
                 { followed: user_followed_id }
             ]
         }
@@ -55,14 +55,14 @@ const follow = async(req, res) => {
         try {
             //Creamos y guardamos el objeto Follow pasándole los parámetros
             let followed_user = await new Follow({
-                user: user_identity_by_token.id,
+                user: user_identity_by_token._id,
                 followed: user_followed_id
             }).save();
     
             return res.status(200).json({
                 message: "Has seguido correctamente a este usuario:",
                 followed_user: followed_user.followed,
-                user_identity: user_identity_by_token.id,
+                user_identity: user_identity_by_token._id,
                 object_follow: followed_user
             })
     
@@ -98,7 +98,7 @@ const unFollowed = async(req, res) => {
         const find_object_followed = await Follow.findOne(
             {
                 $and: [
-                    { user: user_identity.id },
+                    { user: user_identity._id },
                     { followed: id_params }
                 ]
             }
@@ -126,7 +126,7 @@ const unFollowed = async(req, res) => {
 //LISTADO DE USUARIOS QUE SIGO
 const following = async(req, res) => {
     //Obtener el id del usuario registrado
-    let user_identity_id = req.user.id;
+    let user_identity_id = req.user._id;
     //Si viene indicado por la url y comprobamos si existe
     if(req.params.id) {
         try {
@@ -239,7 +239,7 @@ const followers = async(req, res) => {
 //LISTADO LIMPIO DE USUARIOS QUE SIGO
 const followingAndFollowers = async(req, res) => {
     //Obtenemos el id del usuario identificado
-    let user_identity_id = req.user.id;
+    let user_identity_id = req.user._id;
     if(req.params.id) user_identity_id = req.params.id;
     //Obtenemos ambos listados de la consulta del servicio
     let followsIds = await followService.followingAndFollowersId(user_identity_id);

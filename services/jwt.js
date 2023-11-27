@@ -8,7 +8,7 @@ const secret_key = "XxxxxxxX";
 const generateJwt = (user) =>{
     //Estos datos son todo lo que se va a cargar dentro del jwt
     const payload = {
-        id: user._id,
+        _id: user._id,
         nombre: user.nombre,
         nick: user.nick,
         bio: user.bio,

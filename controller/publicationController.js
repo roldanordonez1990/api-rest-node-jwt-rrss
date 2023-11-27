@@ -15,7 +15,7 @@ const prueba2 = (req, res) => {
 //CREAR UNA PUBLICACIÓN
 const addPublication = async(req, res) => {
     //Obtenemos el id del usuario registrado
-    const user_identity_id = req.user.id;
+    const user_identity_id = req.user._id;
     //Recogemos los parámetros enviados por post
     let params = req.body;
     //Comprobamos que nos llegan 
@@ -46,7 +46,7 @@ const removePublication = async(req, res) => {
     //Obtener el id de la publicación
     const publication_id = req.params.id;
     //Obtener el id del usuario registrado, autor de la publicación
-    const user_identity_id = req.user.id;
+    const user_identity_id = req.user._id;
     //Comprobar si nos llega el id de la publicación
     if(!publication_id) return res.status(400).send({message: "No has indicado publicación."});
 
@@ -222,7 +222,7 @@ const getImgPublication = (req, res) =>{
   //FEED DE PUBLICACIONES (MURO)
   const feed = async(req, res) => {
       //Obtener el id del usuario registrado
-      const userId = req.user.id;
+      const userId = req.user._id;
       //Obtener la página
       let page = 1;
       if(req.params.page) page = req.params.page;
@@ -231,7 +231,7 @@ const getImgPublication = (req, res) =>{
 
       try {
             //Primero sacamos un array de todos los id de los usuarios que seguimos (Following)
-            const following = await followService.followingAndFollowersId(req.user.id);
+            const following = await followService.followingAndFollowersId(req.user._id);
             //Mostramos todas las publicaciones de los usuarios que sigo
             //Dentro del método find, con la propiedad $in, hará "match" de las publicaciones cuyo user coincida con mis following
             const feed_publications = await Publication.find({
