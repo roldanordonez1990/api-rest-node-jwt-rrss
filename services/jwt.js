@@ -13,6 +13,7 @@ const generateJwt = (user) =>{
         nick: user.nick,
         bio: user.bio,
         email: user.email,
+        password: user.password,
         imagen: user.imagen,
         role: user.role,
         iat: moment().unix(), //Fecha de creación

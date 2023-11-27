@@ -230,7 +230,7 @@ const updateUser = async (req, res) => {
   //Si el email o el nick que queremos actualizar ya existe en la BBDD, ese usuario ya existe.
   let flag = false;
   //Si enviamos los campos vacíos
-  if(user_to_update.nick == "" || user_to_update.email == ""){
+  if(user_to_update.nick == "" || user_to_update.email == "" || user_to_update.nombre == ""){
     return res.status(404).send({
       message: "No puedes actualizar con los campos vacíos.",
     });
@@ -247,15 +247,18 @@ const updateUser = async (req, res) => {
         message: "Este ususario ya existe.",
       });
     }
-    //Encriptamos primero la password, la cambie o llegue la misma
+    //Encriptamos primero la password, en caso de que la cambie
     if(user_to_update.password){
       let password_new = await bcrypt.hash(user_to_update.password, 10);
       user_to_update.password = password_new;
+    }else{
+      //Si no se cambia, se añade al objeto la que ya está encriptada del token, dejando así la misma
+      user_to_update.password = user_token_identity.password;
     }
     //Actualizamos el user
     try {
       const user_updated = await User.findByIdAndUpdate({_id: user_token_identity.id}, user_to_update, {new: true})
-      .select({"role" :0, "passowrd": 0, "__v": 0});
+      .select({"role" :0, "__v": 0});
       return res.status(200).send({
         message: "Has actualizado tu usuario correctamente.",
         user_token_identity: user_token_identity,
