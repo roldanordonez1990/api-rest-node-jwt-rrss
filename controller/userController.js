@@ -102,6 +102,7 @@ const login = async (req, res) => {
         nick: user_finded.nick,
         bio: user_finded.bio,
         email: user_finded.email,
+        imagen: user_finded.imagen
       },
       token: token_jwt
     });
@@ -113,7 +114,7 @@ const getDataUserProfile = async (req, res) => {
   const id = req.params.id;
   try {
     //Con select filtramos para que NO muestre la pass y el role
-    const user_registered = await User.findById({_id:id}).select({password: 0, role: 0, __v: 0});
+    const user_registered = await User.findOne({_id:id}).select({password: 0, role: 0, __v: 0});
 
     //Obtener si seguimos o nos sigue este usuario desde el followService
     const followingAndFollowMe = await followService.followThisUser(req.user._id, id);
@@ -287,12 +288,13 @@ const uploadAvatar = async(req, res) =>{
   let extension = extension_split[1];
   if(extension == "png" || extension == "jpeg" || extension == "jpg" || extension == "gift"){
     try {
-      const image_user_updated = await User.findByIdAndUpdate(req.user._id, {imagen: req.file.filename}, {new: true});
+      const image_user_updated = await User.findOneAndUpdate({_id: req.user._id}, {imagen: req.file.filename}, {new: true});
       if(image_user_updated){
         return res.status(200).send({
           message: "Has actualizado tu avatar correctamente.",
           file: req.file,
           extension: extension,
+          user_updated_with_img: image_user_updated,
           image_user_updated: image_user_updated.imagen
         });
       }
