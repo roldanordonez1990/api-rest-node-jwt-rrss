@@ -156,7 +156,7 @@ const following = async(req, res) => {
         //Si queremos que NO salgan algunos campos, lo escribimos con el -
         //.populate("user followed", "-password -role -__v")
         //En este caso, si queremos que sólo salga el nombre y el nick, lo ponemos así:
-        .populate("followed", "nombre nick")
+        .populate("followed", "nombre nick bio imagen created_at")
         .paginate(page, itemsPerPage);
         //Hacemos una consulta para sacar el total de usuarios que sigo para poder calcular el num páginas
         const total_following = await Follow.find({user: user_identity_id});
