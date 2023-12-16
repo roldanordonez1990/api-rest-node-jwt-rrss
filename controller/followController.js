@@ -209,15 +209,17 @@ const followers = async(req, res) => {
     try {
         const users_followers = await Follow.find({followed: user_identity_id})
         .select({_id: 0, __v: 0, created_at: 0})
-        .populate("user", "nombre nick")
+        .populate("user", "nombre nick bio imagen created_at")
         .paginate(page, itemsPerPage);
         //Hacemos una consulta para sacar el total de usuarios que sigo para poder calcular el num páginas
         const total_followers = await Follow.find({followed: user_identity_id});
+        const following = await Follow.find({user: user_identity_id});
         if(users_followers.length >= 1 && total_followers.length >= 1){
             return res.status(200).send({
                 message: "Listado de los usuarios que me siguen.",
                 followers: users_followers,
                 total_followers: total_followers.length,
+                following: following,
                 page: page,
                 //Dividimos el total de usuarios entre los usuarios por página. Math.ceil redondea al alza
                 total_pages: Math.ceil(total_followers.length/itemsPerPage)
