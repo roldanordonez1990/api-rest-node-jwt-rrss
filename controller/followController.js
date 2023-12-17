@@ -213,6 +213,7 @@ const followers = async(req, res) => {
         .paginate(page, itemsPerPage);
         //Hacemos una consulta para sacar el total de usuarios que sigo para poder calcular el num páginas
         const total_followers = await Follow.find({followed: user_identity_id});
+        //Hacemos una consulta para sacar el total de usuarios que me siguen
         const following = await Follow.find({user: user_identity_id});
         if(users_followers.length >= 1 && total_followers.length >= 1){
             return res.status(200).send({
