@@ -129,7 +129,7 @@ const getPublicationsUser = async (req, res) => {
         const finded_publications = await Publication.find({user: user_id})
         .select({__v: 0}) //Con select decidimos qué queremos y qué no
         .sort("-created_at") //Con sort ordenamos por fecha, en negativo para orden descendente
-        .populate("user", "nombre nick") //Con populate desglosamos el objeto user dentro del objeto publication
+        .populate("user", "nombre nick imagen") //Con populate desglosamos el objeto user dentro del objeto publication
         .paginate(page, itemsForPage);
         //Sacamos el total de publicaciones limpio del usuario. No de la anterior consulta porque el total sería sólo por página
         const total_publications = await Publication.find({user: user_id});
@@ -239,7 +239,7 @@ const getImgPublication = (req, res) =>{
             })
             .sort("-created_at")
             .select({"__v": 0})
-            .populate("user", "_id nombre nick")
+            .populate("user", "_id nombre nick imagen")
             .paginate(page, itemsForPage);
 
             //Sacamos el total de publicaciones con otra consulta a parte. La anterior sólo sacaría el total por página
