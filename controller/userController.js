@@ -9,6 +9,7 @@ const path = require("path");
 const followService = require("../services/followServices");
 const Follow = require("../model/Follow");
 const Publication = require("../model/Publication");
+const validation = require("../validation/validation")
 
 //PRUEBA
 const prueba1 = (req, res) => {
@@ -22,11 +23,15 @@ const prueba1 = (req, res) => {
 const addUser = async (req, res) => {
   let params = req.body;
   //Si se envía vacío alguno de estos campos requeridos..
+  
   if (!params.nombre || !params.nick || !params.email || !params.password) {
     return res.status(400).json({
       message: "Bad request. Faltan datos."
     });
   }
+  
+  //validation(params)
+  
   //Dentro de find, el $or es como un condicional ||
   //Antes comprobamos si ya existe algún campo igual o no
   const user_repeat = await User.find({
